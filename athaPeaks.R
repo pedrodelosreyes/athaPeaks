@@ -54,12 +54,13 @@ reverse.complement <- function(dna.sequence)
 con <- file("data/jaspar_motifs/pfm_plants_20180911_Pedro.txt",open = "r")
 
 ## Empty list for storing PWM
-motifs.pwm <- vector(mode="list",length = 463)
-motif.ids <- vector(mode="character",length=463)
-motif.names <- vector(mode="character",length=463)
+pwms <- read.table(file="data/jaspar_motifs/pfm_plants_20180911_Pedro.txt", sep = "\t")
+motifs.pwm <- vector(mode="list",length = nrow(pwms)/5)
+motif.ids <- vector(mode="character",length= nrow(pwms)/5)
+motif.names <- vector(mode="character",length= nrow(pwms)/5)
 
-## Load 64 PWM
-for(j in 1:463)
+## Load all PWMs
+for(j in 1:(nrow(pwms)/5))
 {
   ## First line contains motif id and name
   first.line <- readLines(con,1)
@@ -93,53 +94,62 @@ close(con)
 names(motifs.pwm) <- motif.names
 names(motif.ids) <- motif.names
 
-bigwig.files <- c("data/bw_files/PHYA.bw",
-                  "data/bw_files/PHYB_FLAG_27_1.bw",
-                  "data/bw_files/PRR5_1.bw",
-                  "data/bw_files/TOC1.bw",
-                  "data/bw_files/CCA1_ZT02.bw",
-                  "data/bw_files/CCA1_ZT14_1.bw",
-                  "data/bw_files/LHY_1.bw",
-                  "data/bw_files/CRY2.bw",
-                  "data/bw_files/FHY1.bw",
-                  "data/bw_files/LUX_ZT10.bw",
-                  "data/bw_files/LUX_ZT12.bw",
-                  "data/bw_files/PIF3.bw",
-                  "data/bw_files/PIF4.bw",
-                  "data/bw_files/PIF5.bw",
-                  "data/bw_files/PRR7.bw",
-                  "data/bw_files/PRR9_1.bw",
-                  "data/bw_files/ELF3_ZT0.bw",
-                  "data/bw_files/ELF3_ZT4.bw",
-                  "data/bw_files/ELF4.bw",
-                  "data/bw_files/CO.bw",
-                  "data/bw_files/input_35SCO.bw")
+bigwig.files <- list.files(path="data/bw_files/")
+# bigwig.files <- c("data/bw_files/PHYA.bw",
+#                   "data/bw_files/PHYB_FLAG_27_1.bw",
+#                   "data/bw_files/PRR5_1.bw",
+#                   "data/bw_files/TOC1.bw",
+#                   "data/bw_files/CCA1_ZT02.bw",
+#                   "data/bw_files/CCA1_ZT14_1.bw",
+#                   "data/bw_files/LHY_1.bw",
+#                   "data/bw_files/CRY2.bw",
+#                   "data/bw_files/FHY1.bw",
+#                   "data/bw_files/LUX_ZT10.bw",
+#                   "data/bw_files/LUX_ZT12.bw",
+#                   "data/bw_files/PIF3.bw",
+#                   "data/bw_files/PIF4.bw",
+#                   "data/bw_files/PIF5.bw",
+#                   "data/bw_files/PRR7.bw",
+#                   "data/bw_files/PRR9_1.bw",
+#                   "data/bw_files/ELF3_ZT0.bw",
+#                   "data/bw_files/ELF3_ZT4.bw",
+#                   "data/bw_files/ELF4.bw",
+#                   "data/bw_files/CO.bw",
+#                   "data/bw_files/input_35SCO.bw")
 
-names(bigwig.files) <- c("PHYA ZT00", "PHYB ZT00" ,"PRR5 ZT10", "TOC1 ZT15","CCA1 ZT02","CCA1 ZT14","LHY ZT02","CRY2 ZT08","FHY1 ZT04","LUX ZT10", "LUX ZT12","PIF3 ZT08","PIF4 ZT04","PIF5 ZT04","PRR7 ZT12","PRR9 ZT04","ELF3 ZT00", "ELF3 ZT04", "ELF4 ZT10", "CO ZT16", "input CO")
+bw.names <- sapply(bigwig.files, strsplit, split=".bw")
+names(bigwig.files) <- bw.names
 
-bed.files <- c("data/bed_files/PHYA_peaks.narrowPeak",
-               "data/bed_files/PHYB_peaks.narrowPeak",
-               "data/bed_files/PRR5_1_peaks.narrowPeak",
-               "data/bed_files/TOC1_1_peaks.narrowPeak",
-               "data/bed_files/CCA1_ZT02_peaks.narrowPeak",
-               "data/bed_files/CCA1_ZT14_peaks.narrowPeak",
-               "data/bed_files/LHY_1_peaks.narrowPeak",
-               "data/bed_files/CRY2_peaks.narrowPeak",
-               "data/bed_files/FHY1_peaks.narrowPeak",
-               "data/bed_files/LUX_ZT10_1_peaks.narrowPeak",
-               "data/bed_files/LUX_ZT12_1_peaks.narrowPeak",
-               "data/bed_files/PIF3_peaks.narrowPeak",
-               "data/bed_files/PIF4_peaks.narrowPeak",
-               "data/bed_files/PIF5_peaks.narrowPeak",
-               "data/bed_files/PRR7_peaks.narrowPeak",
-               "data/bed_files/PRR9_1_peaks.narrowPeak",
-               "data/bed_files/ELF3_ZT0_1_peaks.narrowPeak",
-               "data/bed_files/ELF3_ZT4_1_peaks.narrowPeak",
-               "data/bed_files/ELF4_1_peaks.narrowPeak",
-               "data/bed_files/HY5.bed",
-               "data/bed_files/CO_peaks.narrowPeak")
+# names(bigwig.files) <- c("PHYA ZT00", "PHYB ZT00" ,"PRR5 ZT10", "TOC1 ZT15","CCA1 ZT02","CCA1 ZT14","LHY ZT02","CRY2 ZT08","FHY1 ZT04","LUX ZT10", "LUX ZT12","PIF3 ZT08","PIF4 ZT04","PIF5 ZT04","PRR7 ZT12","PRR9 ZT04","ELF3 ZT00", "ELF3 ZT04", "ELF4 ZT10", "CO ZT16", "input CO")
 
-names(bed.files) <- c("PHYA ZT00", "PHYB ZT00" ,"PRR5 ZT10", "TOC1 ZT15","CCA1 ZT02","CCA1 ZT14","LHY ZT02","CRY2 ZT08","FHY1 ZT04","LUX ZT10", "LUX ZT12", "PIF3 ZT08","PIF4 ZT04","PIF5 ZT04","PRR7 ZT12","PRR9 ZT04","ELF3 ZT00", "ELF3 ZT04", "ELF4 ZT10", "HY5", "CO ZT16")
+
+bed.files <- list.files("data/bed_files/")
+# bed.files <- c("data/bed_files/PHYA_peaks.narrowPeak",
+#                "data/bed_files/PHYB_peaks.narrowPeak",
+#                "data/bed_files/PRR5_1_peaks.narrowPeak",
+#                "data/bed_files/TOC1_1_peaks.narrowPeak",
+#                "data/bed_files/CCA1_ZT02_peaks.narrowPeak",
+#                "data/bed_files/CCA1_ZT14_peaks.narrowPeak",
+#                "data/bed_files/LHY_1_peaks.narrowPeak",
+#                "data/bed_files/CRY2_peaks.narrowPeak",
+#                "data/bed_files/FHY1_peaks.narrowPeak",
+#                "data/bed_files/LUX_ZT10_1_peaks.narrowPeak",
+#                "data/bed_files/LUX_ZT12_1_peaks.narrowPeak",
+#                "data/bed_files/PIF3_peaks.narrowPeak",
+#                "data/bed_files/PIF4_peaks.narrowPeak",
+#                "data/bed_files/PIF5_peaks.narrowPeak",
+#                "data/bed_files/PRR7_peaks.narrowPeak",
+#                "data/bed_files/PRR9_1_peaks.narrowPeak",
+#                "data/bed_files/ELF3_ZT0_1_peaks.narrowPeak",
+#                "data/bed_files/ELF3_ZT4_1_peaks.narrowPeak",
+#                "data/bed_files/ELF4_1_peaks.narrowPeak",
+#                "data/bed_files/HY5.bed",
+#                "data/bed_files/CO_peaks.narrowPeak")
+
+# names(bed.files) <- c("PHYA ZT00", "PHYB ZT00" ,"PRR5 ZT10", "TOC1 ZT15","CCA1 ZT02","CCA1 ZT14","LHY ZT02","CRY2 ZT08","FHY1 ZT04","LUX ZT10", "LUX ZT12", "PIF3 ZT08","PIF4 ZT04","PIF5 ZT04","PRR7 ZT12","PRR9 ZT04","ELF3 ZT00", "ELF3 ZT04", "ELF4 ZT10", "HY5", "CO ZT16")
+
+bed.names <- sapply(bed.files, strsplit, split=".narrowPeak")
+names(bed.files) <- bed.names
 
 ## TF binding sites colors and symbol shapes
 symbol.shapes <- c(17, 18, 19, 15)
