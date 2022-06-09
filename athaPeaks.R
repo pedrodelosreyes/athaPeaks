@@ -6,6 +6,8 @@
 # Ana Belén Romero Losada arlosada@us.es
 
 ## This script allows you to visualize peaks and dense binding profiles of TFs to the genome.
+## This Peak visualizer is a tool developed from an ATTRACTOR (https://github.com/fran-romero-campero/ATTRACTOR)
+## and ALGAEFUN (https://github.com/fran-romero-campero/AlgaeFUN) module.  
 
 ## Load libraries
 library(ChIPpeakAnno)
