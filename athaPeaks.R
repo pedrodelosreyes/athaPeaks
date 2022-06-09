@@ -148,43 +148,45 @@ bed.files <- list.files("data/bed_files/")
 
 # names(bed.files) <- c("PHYA ZT00", "PHYB ZT00" ,"PRR5 ZT10", "TOC1 ZT15","CCA1 ZT02","CCA1 ZT14","LHY ZT02","CRY2 ZT08","FHY1 ZT04","LUX ZT10", "LUX ZT12", "PIF3 ZT08","PIF4 ZT04","PIF5 ZT04","PRR7 ZT12","PRR9 ZT04","ELF3 ZT00", "ELF3 ZT04", "ELF4 ZT10", "HY5", "CO ZT16")
 
-bed.names <- sapply(bed.files, strsplit, split=".narrowPeak")
+bed.names <- sapply(bed.files, strsplit, split="_peaks.narrowPeak")
 names(bed.files) <- bed.names
 
 ## TF binding sites colors and symbol shapes
 symbol.shapes <- c(17, 18, 19, 15)
 symbol.color <- c("blue", "red", "darkgreen", "magenta")
 
-###Variables to modify
+## Variables to modify
 promoter.length <- 2000
 fiveprime.length <- 500
 min.score.pwm <- 95
 target.gene <- "AT5G24770"
 common.name <- "VSP2"
-# names.tfs <- c("PRR5 ZT10", "CO ZT16", "HY5")
-names.tfs <- c("CO ZT16","input CO")
-# selected.motifs <- "G-box"
-# selected.motifs <- c("G-box","NF-CO", "CORE_CO", "G-box_CO",
-#                      "CORE1", "CORE2")
+# Here you select the TFs whose binding will be plotted. This names have to
+# match with the names of the files (bed.files and bigwig.files)
+names.tfs <- c("TF1","input_TF1") 
+
+# Here you select the DNA elements to be searched in the binding sites
 selected.motifs <- c("G-box","CCACA-box",
                      "CORE1", "CORE2")
-image.height <- 4
-image.width <- 8
 
-## Specifyng number of bed files and number of peak files. Sometimes
-## we could wanto to include experiments without bigwig file or
-## bed file. For example, HY5 comes from a ChIP-on-chip experiment
-## and it doesnt have peak file (bw). And if we include the input
+image.height <- 4 #image height in inches
+image.width <- 8 #image width in inches
+
+## Specifying number of bed files and number of peak files. Sometimes
+## we could want to to include experiments without bigwig file or
+## bed file. For example, those that come from a ChIP-on-chip experiment
+## and it doesn't have dense file (bw). And if we include the input
 ## of a chip experiment we have to plot its binding profile (bw file)
 ## but it does not have bed file. 
-number.beds <- 1
-number.peaks <- 2
 
+beds.to.use <- bed.files[names.tfs]
+number.beds <- length(beds.to.use[!is.na(beds.to.use)])
 
+bw.to.use <- bigwig.files[names.tfs]
+number.bw <- length(bw.to.use[!is.na(bw.to.use)])
 
 
 ## Extract target gene annotation 
-# gene.name <-  strsplit(target.gene,split=" - ")[[1]][1]
 gene.name <- target.gene
 
 target.gene.body <- genes.data[gene.name,]
@@ -221,7 +223,6 @@ current.length <- range.to.plot$end - range.to.plot$start
 number.tfs <- length(names.tfs)
 upper.lim <- 25 * number.tfs
 
-
 ## Draw DNA strand
 gene.height <- -25
 cord.x <- 1:current.length
@@ -229,13 +230,10 @@ cord.x <- 1:current.length
 
 tiff(paste0(target.gene,"_", common.name, ".tiff"), height = image.height, width = image.width,
      units = 'in', res=300, compression="lzw")
-# tiff(paste0(target.gene,"_", common.name, ".tiff"), height = 4, width = 8, 
-     # units = 'in', res=300, compression="lzw")
 
 plot(cord.x, rep(gene.height,length(cord.x)),type="l",col="black",lwd=3,ylab="",
      cex.lab=2,axes=FALSE,xlab="",main="",cex.main=2,
      ylim=c(-30,upper.lim),xlim=c(-3000,max(cord.x)))
-
 
 ## Extract exons for target gene
 exons.data.target.gene <- subset(exons.data, seqnames == target.gene.chr & (start >= target.gene.start & end <= target.gene.end))
@@ -319,9 +317,11 @@ if(target.gene.strand == "+")
 }
 
 
+
+## 
 # Para cuando representamos el IP de CO y el input de CO. En este caso
-# hay dos bifwig pero un sólo archivo bed. 
-selected.bigwig.files <- bigwig.files[names.tfs][c(1:number.peaks)]
+# hay dos bigwig pero un sólo archivo bed. 
+selected.bigwig.files <- bigwig.files[names.tfs][c(1:number.bw)]
 selected.bed.files <- bed.files[names.tfs][c(1:number.beds)]
 
 ## Since ChIPpeakAnno needs more than one region to plot our region
@@ -329,12 +329,12 @@ selected.bed.files <- bed.files[names.tfs][c(1:number.beds)]
 regions.plot <- GRanges(rbind(range.to.plot,range.to.plot))
 
 ## Import signal from the bigwig files
-cvglists <- sapply(selected.bigwig.files, import, 
+cvglists <- sapply(paste0("data/bw_files/",selected.bigwig.files), import, 
                    format="BigWig", 
                    which=regions.plot, 
                    as="RleList")
 
-names(cvglists) <- names.tfs[c(1:number.peaks)] 
+names(cvglists) <- names.tfs[c(1:number.bw)] 
 
 ## Compute signal in the region to plot
 chip.signal <- featureAlignedSignal(cvglists, regions.plot, 
@@ -349,7 +349,7 @@ chip.signal.means <- matrix(nrow=number.tfs, ncol=ncol(chip.signal[[1]]))
 # chip.signal.means <- matrix(nrow=number.tfs-1, ncol=ncol(chip.signal[[1]])) #si metemos HY5, que no tiene bw file. 
 
 # for(i in 1:(number.tfs))
-for(i in 1:(number.peaks))  
+for(i in 1:(number.bw))  
 {
   if(target.gene.strand == "+")
   {
@@ -381,10 +381,9 @@ colnames(df.hits) <- c("tf_number","position","id","name","seq")
 ## Width of the rectangule representing the peak region
 peak.width <- 1
 for(i in 1:number.beds)
-# for(i in 1:number.tfs-1) #si metemos HY5, ya que no tiene bw file. 
 {
   ## Extract bed file name 1 and read it
-  current.bed.file <- selected.bed.files[i]
+  current.bed.file <- paste0("data/bed_files/", selected.bed.files[i])
   current.peaks <- read.table(file=current.bed.file,header = F, as.is = T)
   peak.coordinates <- subset(current.peaks, V1 == range.to.plot$seqnames & V2 >= range.to.plot$start & V3 <= range.to.plot$end) 
   current.peaks.to.plot <- peak.coordinates[,2:3]
@@ -536,7 +535,7 @@ if(length(detected.tfbs) > 0)
 
 ## Draw profiles for TF binding
 # for(i in 1:number.tfs)
-for(i in 1:number.peaks) 
+for(i in 1:number.bw) 
 {
   ## Compute base line for current TF
   current.base.line <- 25 * (i - 1)
