@@ -3,9 +3,9 @@
 ##Authors: 
 # Pedro de los Reyes Rodríguez pedro.reyes@ibvf.csic.es
 # Francisco José Romero Campero fran@us.es
-# Ana Belén Romero Losada 
+# Ana Belén Romero Losada arlosada@us.es
 
-## Little description
+## This script allows you to visualize peaks and dense binding profiles of TFs to the genome.
 
 ## Load libraries
 library(ChIPpeakAnno)
