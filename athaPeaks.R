@@ -97,59 +97,10 @@ names(motifs.pwm) <- motif.names
 names(motif.ids) <- motif.names
 
 bigwig.files <- list.files(path="data/bw_files/")
-# bigwig.files <- c("data/bw_files/PHYA.bw",
-#                   "data/bw_files/PHYB_FLAG_27_1.bw",
-#                   "data/bw_files/PRR5_1.bw",
-#                   "data/bw_files/TOC1.bw",
-#                   "data/bw_files/CCA1_ZT02.bw",
-#                   "data/bw_files/CCA1_ZT14_1.bw",
-#                   "data/bw_files/LHY_1.bw",
-#                   "data/bw_files/CRY2.bw",
-#                   "data/bw_files/FHY1.bw",
-#                   "data/bw_files/LUX_ZT10.bw",
-#                   "data/bw_files/LUX_ZT12.bw",
-#                   "data/bw_files/PIF3.bw",
-#                   "data/bw_files/PIF4.bw",
-#                   "data/bw_files/PIF5.bw",
-#                   "data/bw_files/PRR7.bw",
-#                   "data/bw_files/PRR9_1.bw",
-#                   "data/bw_files/ELF3_ZT0.bw",
-#                   "data/bw_files/ELF3_ZT4.bw",
-#                   "data/bw_files/ELF4.bw",
-#                   "data/bw_files/CO.bw",
-#                   "data/bw_files/input_35SCO.bw")
-
 bw.names <- sapply(bigwig.files, strsplit, split=".bw")
 names(bigwig.files) <- bw.names
 
-# names(bigwig.files) <- c("PHYA ZT00", "PHYB ZT00" ,"PRR5 ZT10", "TOC1 ZT15","CCA1 ZT02","CCA1 ZT14","LHY ZT02","CRY2 ZT08","FHY1 ZT04","LUX ZT10", "LUX ZT12","PIF3 ZT08","PIF4 ZT04","PIF5 ZT04","PRR7 ZT12","PRR9 ZT04","ELF3 ZT00", "ELF3 ZT04", "ELF4 ZT10", "CO ZT16", "input CO")
-
-
 bed.files <- list.files("data/bed_files/")
-# bed.files <- c("data/bed_files/PHYA_peaks.narrowPeak",
-#                "data/bed_files/PHYB_peaks.narrowPeak",
-#                "data/bed_files/PRR5_1_peaks.narrowPeak",
-#                "data/bed_files/TOC1_1_peaks.narrowPeak",
-#                "data/bed_files/CCA1_ZT02_peaks.narrowPeak",
-#                "data/bed_files/CCA1_ZT14_peaks.narrowPeak",
-#                "data/bed_files/LHY_1_peaks.narrowPeak",
-#                "data/bed_files/CRY2_peaks.narrowPeak",
-#                "data/bed_files/FHY1_peaks.narrowPeak",
-#                "data/bed_files/LUX_ZT10_1_peaks.narrowPeak",
-#                "data/bed_files/LUX_ZT12_1_peaks.narrowPeak",
-#                "data/bed_files/PIF3_peaks.narrowPeak",
-#                "data/bed_files/PIF4_peaks.narrowPeak",
-#                "data/bed_files/PIF5_peaks.narrowPeak",
-#                "data/bed_files/PRR7_peaks.narrowPeak",
-#                "data/bed_files/PRR9_1_peaks.narrowPeak",
-#                "data/bed_files/ELF3_ZT0_1_peaks.narrowPeak",
-#                "data/bed_files/ELF3_ZT4_1_peaks.narrowPeak",
-#                "data/bed_files/ELF4_1_peaks.narrowPeak",
-#                "data/bed_files/HY5.bed",
-#                "data/bed_files/CO_peaks.narrowPeak")
-
-# names(bed.files) <- c("PHYA ZT00", "PHYB ZT00" ,"PRR5 ZT10", "TOC1 ZT15","CCA1 ZT02","CCA1 ZT14","LHY ZT02","CRY2 ZT08","FHY1 ZT04","LUX ZT10", "LUX ZT12", "PIF3 ZT08","PIF4 ZT04","PIF5 ZT04","PRR7 ZT12","PRR9 ZT04","ELF3 ZT00", "ELF3 ZT04", "ELF4 ZT10", "HY5", "CO ZT16")
-
 bed.names <- sapply(bed.files, strsplit, split="_peaks.narrowPeak")
 names(bed.files) <- bed.names
 
@@ -318,11 +269,7 @@ if(target.gene.strand == "+")
   axis(side = 1,labels = c("TSS",- promoter.length / 2,- promoter.length),at = c(current.length-promoter.length,current.length-promoter.length/2, current.length),lwd=2,cex=1.5,las=2,cex=2)
 }
 
-
-
-## 
-# Para cuando representamos el IP de CO y el input de CO. En este caso
-# hay dos bigwig pero un sólo archivo bed. 
+## Get the selected files
 selected.bigwig.files <- bigwig.files[names.tfs][c(1:number.bw)]
 selected.bed.files <- bed.files[names.tfs][c(1:number.beds)]
 
@@ -348,9 +295,7 @@ chip.signal <- featureAlignedSignal(cvglists, regions.plot,
 
 ## Compute mean signal 
 chip.signal.means <- matrix(nrow=number.tfs, ncol=ncol(chip.signal[[1]]))
-# chip.signal.means <- matrix(nrow=number.tfs-1, ncol=ncol(chip.signal[[1]])) #si metemos HY5, que no tiene bw file. 
 
-# for(i in 1:(number.tfs))
 for(i in 1:(number.bw))  
 {
   if(target.gene.strand == "+")
@@ -364,15 +309,7 @@ for(i in 1:(number.bw))
 
 ## Draw peak regions for each TF and determing TF binding sequences
 
-## Determine TFBS motifs to search for
-# if(all.motifs)
-# {
-  # selected.motifs.pwm <- motifs.pwm
-# } else
-# {
-  selected.motifs.pwm <- motifs.pwm[selected.motifs]
-# }
-
+selected.motifs.pwm <- motifs.pwm[selected.motifs]
 selected.motif.names <- names(selected.motifs.pwm)
 selected.motif.ids <- motif.ids[selected.motif.names]
 
