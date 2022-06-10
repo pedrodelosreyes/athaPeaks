@@ -181,8 +181,8 @@ gene.height <- -25
 cord.x <- 1:current.length
 
 
-tiff(paste0(target.gene,"_", common.name, ".tiff"), height = image.height, width = image.width,
-     units = 'in', res=300, compression="lzw")
+png(paste0(target.gene,"_", common.name, ".png"), height = image.height, width = image.width,
+     units = 'in', res=300)
 
 plot(cord.x, rep(gene.height,length(cord.x)),type="l",col="black",lwd=3,ylab="",
      cex.lab=2,axes=FALSE,xlab="",main="",cex.main=2,
